@@ -15,6 +15,8 @@
  */
 package uk.gov.gchq.gaffer.gaas.services;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,6 +26,7 @@ import org.springframework.stereotype.Service;
 import uk.gov.gchq.gaffer.gaas.auth.JwtRequest;
 import uk.gov.gchq.gaffer.gaas.auth.JwtTokenUtil;
 import uk.gov.gchq.gaffer.gaas.auth.JwtUserDetailsService;
+import uk.gov.gchq.gaffer.gaas.client.CRDClient;
 import uk.gov.gchq.gaffer.gaas.exception.GaaSRestApiException;
 
 @Service
@@ -36,10 +39,13 @@ public class AuthService {
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(CRDClient.class);
+
     public String getToken(final JwtRequest authenticationRequest) throws GaaSRestApiException {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(), authenticationRequest.getPassword()));
         } catch (AuthenticationException e) {
+            LOGGER.error("Authentication failed", e);
             throw new GaaSRestApiException(e.getClass().getSimpleName(), e.getMessage(), 401);
         }
 
